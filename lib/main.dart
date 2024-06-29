@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,28 +11,30 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => FixedCostProvider(),
+      child: MaterialApp(
+        title: '固定費計算アプリ',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // TRY THIS: Try running your application with "flutter run". You'll see
+          // the application has a blue toolbar. Then, without quitting the app,
+          // try changing the seedColor in the colorScheme below to Colors.green
+          // and then invoke "hot reload" (save your changes or press the "hot
+          // reload" button in a Flutter-supported IDE, or press "r" if you used
+          // the command line to start the app).
+          //
+          // Notice that the counter didn't reset back to zero; the application
+          // state is not lost during the reload. To reset the state, use hot
+          // restart instead.
+          //
+          // This works for code too, not just values: Most code changes can be
+          // tested with just a hot reload.
+          primarySwatch: Colors.blue,
+        ),
+        home: FixedCostListScreen(),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -120,6 +123,116 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class FixedCost {
+  String name;
+  double amount;
+
+  FixedCost({required this.name, required this.amount});
+}
+
+class FixedCostProvider extends ChangeNotifier {
+  List<FixedCost> _fixedCosts = [];
+  List<FixedCost> get fixCosts => _fixedCosts;
+
+  void addFixedCost(FixedCost fixedCost) {
+    _fixedCosts.add(fixedCost);
+    notifyListeners();
+  }
+
+  void removeFixedCost(FixedCost fixedCost) {
+    _fixedCosts.remove(fixedCost);
+    notifyListeners();
+  }
+}
+
+class FixedCostListScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('固定費リスト'),
+      ),
+      body: Consumer<FixedCostProvider>(builder: (context, provider, child) {
+        return ListView.builder(
+          itemCount: provider.fixCosts.length,
+          itemBuilder: (context, index) {
+            final fixedCost = provider.fixCosts[index];
+            return ListTile(
+              title: Text(fixedCost.name),
+              subtitle: Text('${fixedCost.amount}円'),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  provider.removeFixedCost(fixedCost);
+                },
+              ),
+            );
+          },
+        );
+      }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => AddFixedCostScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class AddFixedCostScreen extends StatefulWidget {
+  const AddFixedCostScreen({super.key});
+  @override
+  _AddFixedCostScreenState createState() => _AddFixedCostScreenState();
+}
+
+class _AddFixedCostScreenState extends State<AddFixedCostScreen> {
+  final _nameController = TextEditingController();
+  final _amountController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('固定費を追加'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: '固定費の名称'),
+            ),
+            TextField(
+              controller: _amountController,
+              decoration: const InputDecoration(labelText: '金額'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                final name = _nameController.text;
+                final amount = double.tryParse(_amountController.text) ?? 0;
+
+                if (name.isNotEmpty && amount > 0) {
+                  final fixedCost = FixedCost(name: name, amount: amount);
+                  Provider.of<FixedCostProvider>(context, listen: false)
+                      .addFixedCost(fixedCost);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('追加'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
