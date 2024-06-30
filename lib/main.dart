@@ -236,7 +236,7 @@ class FixedCostListScreen extends StatelessWidget {
                     ListTile(
                       key: Key('$index'),
                       title: Text(provider.fixCosts[index].name),
-                      subtitle: Text('${provider.fixCosts[index].amount}円}'),
+                      subtitle: Text('${provider.fixCosts[index].amount}円'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
