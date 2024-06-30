@@ -147,6 +147,14 @@ class FixedCostProvider extends ChangeNotifier {
     _fixedCosts.remove(fixedCost);
     notifyListeners();
   }
+
+  void updateFixedCost(FixedCost oldFixedCost, FixedCost newFixedCost) {
+    final index = _fixedCosts.indexOf(oldFixedCost);
+    if (index != -1) {
+      _fixedCosts[index] = newFixedCost;
+      notifyListeners();
+    }
+  }
 }
 
 class FixedCostListScreen extends StatelessWidget {
@@ -164,11 +172,26 @@ class FixedCostListScreen extends StatelessWidget {
             return ListTile(
               title: Text(fixedCost.name),
               subtitle: Text('${fixedCost.amount}円'),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  provider.removeFixedCost(fixedCost);
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            EditFixedCostScreen(fixedCost: fixedCost),
+                      ));
+                      //provider.removeFixedCost(fixedCost);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      provider.removeFixedCost(fixedCost);
+                    },
+                  ),
+                ],
               ),
             );
           },
@@ -181,6 +204,75 @@ class FixedCostListScreen extends StatelessWidget {
           );
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class EditFixedCostScreen extends StatefulWidget {
+  final FixedCost fixedCost;
+
+  EditFixedCostScreen({required this.fixedCost});
+
+  @override
+  _EditFixedCostScreenState createState() => _EditFixedCostScreenState();
+}
+
+class _EditFixedCostScreenState extends State<EditFixedCostScreen> {
+  late TextEditingController _nameController;
+  late TextEditingController _amountController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.fixedCost.name);
+    _amountController =
+        TextEditingController(text: widget.fixedCost.amount.toString());
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('固定費を編集'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: '固定費の名称'),
+            ),
+            TextField(
+              controller: _amountController,
+              decoration: const InputDecoration(labelText: '金額'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                final name = _nameController.text;
+                final amount = double.tryParse(_amountController.text) ?? 0;
+
+                if (name.isNotEmpty && amount > 0) {
+                  final newFixedCost = FixedCost(name: name, amount: amount);
+                  Provider.of<FixedCostProvider>(context, listen: false)
+                      .updateFixedCost(widget.fixedCost, newFixedCost);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('保存'),
+            ),
+          ],
+        ),
       ),
     );
   }
