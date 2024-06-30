@@ -155,6 +155,14 @@ class FixedCostProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  double getTotalFixedCost() {
+    double total = 0.0;
+    for (var cost in _fixedCosts) {
+      total += cost.amount;
+    }
+    return total;
+  }
 }
 
 class FixedCostListScreen extends StatelessWidget {
@@ -165,36 +173,60 @@ class FixedCostListScreen extends StatelessWidget {
         title: const Text('固定費リスト'),
       ),
       body: Consumer<FixedCostProvider>(builder: (context, provider, child) {
-        return ListView.builder(
-          itemCount: provider.fixCosts.length,
-          itemBuilder: (context, index) {
-            final fixedCost = provider.fixCosts[index];
-            return ListTile(
-              title: Text(fixedCost.name),
-              subtitle: Text('${fixedCost.amount}円'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: provider.fixCosts.length,
+                itemBuilder: (context, index) {
+                  final fixedCost = provider.fixCosts[index];
+                  return ListTile(
+                    title: Text(fixedCost.name),
+                    subtitle: Text('${fixedCost.amount}円'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  EditFixedCostScreen(fixedCost: fixedCost),
+                            ));
+                            //provider.removeFixedCost(fixedCost);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            provider.removeFixedCost(fixedCost);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              color: Colors.grey[200],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            EditFixedCostScreen(fixedCost: fixedCost),
-                      ));
-                      //provider.removeFixedCost(fixedCost);
-                    },
+                  const Text(
+                    '合計金額:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      provider.removeFixedCost(fixedCost);
-                    },
+                  Text(
+                    '${provider.getTotalFixedCost()}円',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       }),
       floatingActionButton: FloatingActionButton(
@@ -205,6 +237,8 @@ class FixedCostListScreen extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerFloat,
     );
   }
 }
