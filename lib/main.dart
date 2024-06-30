@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -132,19 +134,57 @@ class FixedCost {
   double amount;
 
   FixedCost({required this.name, required this.amount});
+
+  factory FixedCost.fromJson(Map<String, dynamic> json) {
+    return FixedCost(name: json['name'] ?? '', amount: json['amount'] ?? 0);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'amount': amount,
+    };
+  }
 }
 
 class FixedCostProvider extends ChangeNotifier {
+  late SharedPreferences _preferences;
   List<FixedCost> _fixedCosts = [];
   List<FixedCost> get fixCosts => _fixedCosts;
 
+  FixedCostProvider() {
+    _loadFromPreferences();
+  }
+
+  Future<void> _initPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
+  }
+
+  Future<void> _loadFromPreferences() async {
+    await _initPreferences();
+    final String? fixedCostsJson = _preferences.getString('fixedCosts');
+    if (fixedCostsJson != null) {
+      final List<dynamic> decoded = jsonDecode(fixedCostsJson);
+      _fixedCosts = decoded.map((e) => FixedCost.fromJson(e)).toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveToPreferences() async {
+    await _initPreferences();
+    final encoded = jsonEncode(_fixedCosts);
+    await _preferences.setString('fixedCosts', encoded);
+  }
+
   void addFixedCost(FixedCost fixedCost) {
     _fixedCosts.add(fixedCost);
+    _saveToPreferences();
     notifyListeners();
   }
 
   void removeFixedCost(FixedCost fixedCost) {
     _fixedCosts.remove(fixedCost);
+    _saveToPreferences();
     notifyListeners();
   }
 
@@ -152,6 +192,7 @@ class FixedCostProvider extends ChangeNotifier {
     final index = _fixedCosts.indexOf(oldFixedCost);
     if (index != -1) {
       _fixedCosts[index] = newFixedCost;
+      _saveToPreferences();
       notifyListeners();
     }
   }
