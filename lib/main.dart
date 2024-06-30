@@ -197,6 +197,15 @@ class FixedCostProvider extends ChangeNotifier {
     }
   }
 
+  void reorderFixedCosts(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final FixedCost item = _fixedCosts.removeAt(oldIndex);
+    _fixedCosts.insert(newIndex, item);
+    notifyListeners();
+  }
+
   double getTotalFixedCost() {
     double total = 0.0;
     for (var cost in _fixedCosts) {
@@ -218,36 +227,39 @@ class FixedCostListScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: provider.fixCosts.length,
-                itemBuilder: (context, index) {
-                  final fixedCost = provider.fixCosts[index];
-                  return ListTile(
-                    title: Text(fixedCost.name),
-                    subtitle: Text('${fixedCost.amount}円'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  EditFixedCostScreen(fixedCost: fixedCost),
-                            ));
-                            //provider.removeFixedCost(fixedCost);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            provider.removeFixedCost(fixedCost);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
+              child: ReorderableListView(
+                onReorder: (oldIndex, newIndex) {
+                  provider.reorderFixedCosts(oldIndex, newIndex);
                 },
+                children: [
+                  for (int index = 0; index < provider.fixCosts.length; index++)
+                    ListTile(
+                      key: Key('$index'),
+                      title: Text(provider.fixCosts[index].name),
+                      subtitle: Text('${provider.fixCosts[index].amount}円}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => EditFixedCostScreen(
+                                    fixedCost: provider.fixCosts[index]),
+                              ));
+                              //provider.removeFixedCost(fixedCost);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              provider.removeFixedCost(provider.fixCosts[index]);
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                ],
               ),
             ),
             Container(
