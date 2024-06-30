@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class FixedCost {
   String name;
-  double amount;
+  int amount;
 
   FixedCost({required this.name, required this.amount});
 
@@ -206,8 +206,8 @@ class FixedCostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  double getTotalFixedCost() {
-    double total = 0.0;
+  int getTotalFixedCost() {
+    int total = 0;
     for (var cost in _fixedCosts) {
       total += cost.amount;
     }
@@ -347,7 +347,7 @@ class _EditFixedCostScreenState extends State<EditFixedCostScreen> {
             ElevatedButton(
               onPressed: () {
                 final name = _nameController.text;
-                final amount = double.tryParse(_amountController.text) ?? 0;
+                final amount = int.tryParse(_amountController.text) ?? 0;
 
                 if (name.isNotEmpty && amount > 0) {
                   final newFixedCost = FixedCost(name: name, amount: amount);
@@ -398,7 +398,7 @@ class _AddFixedCostScreenState extends State<AddFixedCostScreen> {
             ElevatedButton(
               onPressed: () {
                 final name = _nameController.text;
-                final amount = double.tryParse(_amountController.text) ?? 0;
+                final amount = int.tryParse(_amountController.text) ?? 0;
 
                 if (name.isNotEmpty && amount > 0) {
                   final fixedCost = FixedCost(name: name, amount: amount);
