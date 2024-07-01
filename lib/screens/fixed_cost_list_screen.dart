@@ -9,7 +9,11 @@ class FixedCostListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('固定費リスト'),
+        title: Consumer<FixedCostProvider>(
+          builder: (context, provider, child) {
+            return Text('合計金額: ${provider.getTotalFixedCost()}円');
+          },
+        ),
       ),
       body: Consumer<FixedCostProvider>(builder: (context, provider, child) {
         return Column(
@@ -50,23 +54,6 @@ class FixedCostListScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              color: Colors.grey[200],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '合計金額:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${provider.getTotalFixedCost()}円',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
           ],
         );
       }),
@@ -78,8 +65,6 @@ class FixedCostListScreen extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerFloat,
     );
   }
 }
