@@ -9,6 +9,11 @@ class FixedCostProvider extends ChangeNotifier {
   List<FixedCost> get fixCosts => _fixedCosts;
 
   FixedCostProvider() {
+    _fixedCosts = [
+      FixedCost(name: '住居費', amount: 15000),
+      FixedCost(name: '通信費', amount: 6000),
+      FixedCost(name: '光熱費', amount: 12000),
+    ];
     _loadFromPreferences();
   }
 
