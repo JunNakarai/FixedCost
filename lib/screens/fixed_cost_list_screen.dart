@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/fixed_cost_provider.dart';
 import 'edit_fixed_cost_screen.dart';
@@ -7,11 +8,14 @@ import 'add_fixed_cost_screen.dart';
 class FixedCostListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final numberFormat = NumberFormat("#,##0");
+
     return Scaffold(
       appBar: AppBar(
         title: Consumer<FixedCostProvider>(
           builder: (context, provider, child) {
-            return Text('合計金額: ${provider.getTotalFixedCost()}円');
+            return Text(
+                '合計金額: ${numberFormat.format(provider.getTotalFixedCost())}円');
           },
         ),
       ),
@@ -29,7 +33,8 @@ class FixedCostListScreen extends StatelessWidget {
                     ListTile(
                       key: Key('$index'),
                       title: Text(provider.fixCosts[index].name),
-                      subtitle: Text('${provider.fixCosts[index].amount}円'),
+                      subtitle: Text(
+                          '${numberFormat.format(provider.fixCosts[index].amount)}円'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
