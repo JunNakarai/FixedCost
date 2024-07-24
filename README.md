@@ -1,6 +1,8 @@
 # fixedcost
 
-A new Flutter project.
+![GitHub Release](https://img.shields.io/github/v/release/JunNakarai/fixedcost?link=https%3A%2F%2Fgithub.com%2FJunNakarai%2Ffixedcost%2Freleases)
+
+固定費を管理するアプリです。
 
 ## Getting Started
 
