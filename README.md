@@ -1,6 +1,6 @@
 # fixedcost
 
-![GitHub Release](https://img.shields.io/github/v/release/JunNakarai/fixedcost?link=https%3A%2F%2Fgithub.com%2FJunNakarai%2Ffixedcost%2Freleases)
+[![GitHub Release](https://img.shields.io/github/v/release/JunNakarai/fixedcost?link=https%3A%2F%2Fgithub.com%2FJunNakarai%2Ffixedcost%2Freleases)](https://github.com/JunNakarai/fixedcost/releases)
 
 固定費を管理するアプリです。
 
